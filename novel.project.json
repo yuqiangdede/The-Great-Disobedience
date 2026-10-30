@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "title": "因果静默",
+  "writing": {
+    "brief_target_han": 500,
+    "chapter_min_han": 3000,
+    "chapter_max_han": 5000,
+    "interlude_unbounded": false,
+    "author_approval_required": true
+  },
+  "review": {
+    "travel_location_terms": [],
+    "instant_travel_terms": [
+      "顷刻间",
+      "瞬息"
+    ],
+    "repeated_equipment_terms": []
+  },
+  "paths": {
+    "story_rules": "04-写作规则/项目专属写作规则.md"
+  }
+}
