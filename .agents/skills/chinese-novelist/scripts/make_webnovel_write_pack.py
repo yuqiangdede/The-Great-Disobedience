@@ -5,9 +5,8 @@ import argparse
 import hashlib
 import json
 from pathlib import Path
-import re
 import sys
-from project_config import load_project_config, project_file
+from project_config import project_file
 
 
 def checksum(text):
@@ -51,8 +50,6 @@ def run():
 
     if not secure(task).is_file():
         parser.error("任务卡不存在: " + task)
-    original_task = secure(task).read_text(encoding="utf-8-sig")
-    approved_text_signal = bool(re.search(r"(?:简写|审核状态|作者审核).{0,30}(?:已通过|已批准|通过审核)", original_task))
     names = ["本章任务与确认细纲", "硬约束与禁区", "当前事实与连续性",
              "人物关系组织与规则", "时空及知情边界", "线索与承诺",
              "近期正文衔接", "文风与表达", "暂定事项及风险", "来源版本清单"]
@@ -104,18 +101,16 @@ def run():
     add(7, "99-章节摘要.md", tail=5000)
     add(8, "04-文风/文风总规范.md")
     add(8, "04-文风/原创文风样例.md", tail=6000)
-    brief_size = load_project_config(root)["writing"]["brief_target_han"]
     data[8].append(
-        f"【人工必查】作者是否明确批准本章概要和约{brief_size}字简写；人物是否建档；"
-        "重要物资伤势与知情范围是否连续；需不需要战斗协同专项。\n"
-        f"【任务卡审批文字信号】{'检出，但仍须人工核对' if approved_text_signal else '未检出；不能据此进入详写'}"
+        f"【写前核对】本章简写是否已保存（正文须依次在大纲、简写之后写作）；人物是否建档；"
+        "重要物资伤势与知情范围是否连续；需不需要战斗协同专项。简写保存后可直接详写，无需等待作者逐章批准。"
     )
     if missing:
         data[8].append("【缺失来源】" + "、".join(missing))
     data[9].extend(f"- {item['path']} / {item['range']} / sha256={item['sha256']}" for item in files)
     content = (f"# {slug}·v8 流程适配备料包\n\n"
                f"所属卷：{args.volume}\n\n"
-               "此包不是 DSH 原生输出，不证明作者批准或质检通过。\n")
+               "此包不是 DSH 原生输出，不代表正文已定稿或质检通过。\n")
     for i, name in enumerate(names):
         content += f"\n## {i+1:02d} {name}\n\n" + "\n\n".join(data[i] or ["【未提供】"]) + "\n"
     output = secure(args.output or f".novel-work/{slug}")
@@ -126,14 +121,14 @@ def run():
     manifest = output / "来源清单.json"
     facts = {"schemaVersion": 1, "chapter": slug, "volume": args.volume,
              "task": task, "sources": files, "missing": missing,
-             "task_approval_keyword_only": approved_text_signal,
-             "author_approval_verified": False, "ready_for_drafting": False,
+             "brief_must_precede_drafting": True,
+             "author_approval_verified": False, "ready_for_drafting": True,
              "material_sha256": checksum(content)}
     material.write_text(content, encoding="utf-8")
     manifest.write_text(json.dumps(facts, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({"material": str(material), "manifest": str(manifest),
                       "sources": len(files), "missing": missing,
-                      "approval_verified": False, "sha256": checksum(content)}, ensure_ascii=False))
+                      "approval_required_to_draft": False, "sha256": checksum(content)}, ensure_ascii=False))
 
 
 if __name__ == "__main__":

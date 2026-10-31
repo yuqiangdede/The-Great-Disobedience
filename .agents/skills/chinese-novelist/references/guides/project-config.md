@@ -13,7 +13,7 @@
     "chapter_min_han": 3000,
     "chapter_max_han": 5000,
     "interlude_unbounded": false,
-    "author_approval_required": true
+    "author_approval_required": false
   },
   "review": {
     "travel_location_terms": ["千里", "数百里", "小说特定地名"],
@@ -28,10 +28,10 @@
 
 ## 字段与行为
 
-- `writing.brief_target_han`：概要审批前的简写目标（流程与模型读取；非语言 AIGC 审查阈值）。
+- `writing.brief_target_han`：简写目标长度（流程与模型读取；非语言 AIGC 审查阈值）。
 - `writing.chapter_min_han` / `chapter_max_han`：编号章正文汉字数下限/建议上限，由 `scan_chapter.py`、`scan_ai_tone.py`、`verify_chapter_consistency.py`、`check_chapter_wordcount.py` 调用统一模块读取。
 - `writing.interlude_unbounded`：为 true 时，名字包含“插章”的独立插章默认不受字数上下限约束；命令行显式指定仍覆盖自动豁免。
-- `writing.author_approval_required`：明确作者审批政策，不能仅凭打包工具检测到“已通过”字样就假称作者已批准。本 Skill 当前正文详写流程默认要求逐章明确批准。
+- `writing.author_approval_required`：仅供兼容旧项目的批准/定稿状态字段；不作为写作门槛。写作顺序固定为大纲 → 简写 → 正文，保存简写后即可详写；自动详写不等于作者批准或定稿。
 - `review.travel_location_terms` / `instant_travel_terms`：位移合理性扫描只对同章同时出现的地名/路程词、瞬时位移词给出**人工复核候选**；不基于关键词自动断言物理错误。地名应存当前项目，不写在通用脚本。
 - `review.repeated_equipment_terms`：在 `scan_chapter.py` 中检测重复提及，输出候选行号，不自动扣分或修改；其他扫描维度仍保持原有语义审查。
 - `paths.story_rules`：相对小说项目根目录的 Markdown 路径，写前备料将纳入材料包，并附 SHA256；路径不得越过项目目录。
