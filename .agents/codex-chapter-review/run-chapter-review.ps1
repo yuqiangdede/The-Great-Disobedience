@@ -7,6 +7,8 @@ param(
     [ValidateRange(1, 99999)][int]$Start = 1,
     [ValidateRange(0, 99999)][int]$End = 0,
     [string]$Volume = '',
+    [ValidateSet('read-only', 'workspace-write', 'danger-full-access')]
+    [string]$Sandbox = 'workspace-write',
     [switch]$Force,
     [switch]$AllowDirty,
     [switch]$DryRun
@@ -33,15 +35,18 @@ if (-not (Test-Path -LiteralPath $schemaFile -PathType Leaf)) { Fail "未找到 
 
 $git = Get-Command git -ErrorAction SilentlyContinue
 if (-not $git) { Fail '未找到 git。请安装 Git for Windows。' }
-$gitTop = (& git -C $RepoRoot rev-parse --show-toplevel 2>$null | Select-Object -First 1)
-if ($LASTEXITCODE -ne 0 -or -not $gitTop) { Fail '指定目录不是可用的 Git 仓库。' }
+$gitTop = (& git -C $RepoRoot rev-parse --show-toplevel 2>$null)
+$gitExitCode = $LASTEXITCODE
+if ($gitExitCode -ne 0 -or -not $gitTop) { Fail '指定目录不是可用的 Git 仓库。' }
 if (-not [string]::Equals((CanonicalPath $gitTop), $RepoRoot, [System.StringComparison]::OrdinalIgnoreCase)) {
     Fail "RepoRoot 必须是仓库根目录，当前 Git 根目录：$gitTop"
 }
-$branch = (& git -C $RepoRoot branch --show-current | Select-Object -First 1)
-if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($branch)) { Fail '当前为 detached HEAD 或无法读取分支，停止。' }
+$branch = (& git -C $RepoRoot branch --show-current)
+$gitExitCode = $LASTEXITCODE
+if ($gitExitCode -ne 0 -or [string]::IsNullOrWhiteSpace($branch)) { Fail '当前为 detached HEAD 或无法读取分支，停止。' }
 $dirtyFiles = @(& git -C $RepoRoot status --porcelain --untracked-files=all)
-if ($LASTEXITCODE -ne 0) { Fail '无法读取 Git 工作区状态。' }
+$gitExitCode = $LASTEXITCODE
+if ($gitExitCode -ne 0) { Fail '无法读取 Git 工作区状态。' }
 if ($dirtyFiles.Count -gt 0 -and -not $AllowDirty -and -not $DryRun) {
     Fail "运行前工作区存在 $($dirtyFiles.Count) 项已有修改，已停止。请先保存/隔离这些修改；确认可保留原样续跑时才传 -AllowDirty。"
 }
@@ -174,7 +179,7 @@ foreach ($ch in $chapters) {
         # 每次 exec 都创建新会话。不使用 resume、fork 或 --worktree。
         # 使用 stdin 传输中文长提示词，并保存结构化最终回答。
         $ErrorActionPreference = 'Continue'
-        $prompt | & $codexCommand.Source exec --cd $RepoRoot --sandbox workspace-write `
+        $prompt | & $codexCommand.Source exec --cd $RepoRoot --sandbox $Sandbox `
             --json --output-schema $schemaFile --output-last-message $finalPath - 2>&1 |
             Out-File -LiteralPath $logPath -Encoding utf8
         $exitCode = $LASTEXITCODE
@@ -193,8 +198,9 @@ foreach ($ch in $chapters) {
     if ((Get-Item -LiteralPath $reportFull).LastWriteTimeUtc -le $oldReportWriteTime) {
         Fail "本次运行没有更新章节审查报告，停止。报告：$reportFull"
     }
-    $branchAfter = (& git -C $RepoRoot branch --show-current | Select-Object -First 1)
-    if ($LASTEXITCODE -ne 0 -or $branchAfter -ne $branch) { Fail "Codex 执行后 Git 分支发生变化，停止。原分支：$branch；现分支：$branchAfter" }
+    $branchAfter = (& git -C $RepoRoot branch --show-current)
+    $gitExitCode = $LASTEXITCODE
+    if ($gitExitCode -ne 0 -or $branchAfter -ne $branch) { Fail "Codex 执行后 Git 分支发生变化，停止。原分支：$branch；现分支：$branchAfter" }
     if ($result.optimization_rounds -lt 0 -or $result.optimization_rounds -gt 5 -or
         $null -eq $result.initial_score -or $null -eq $result.final_score -or
         $result.initial_score -lt 0 -or $result.initial_score -gt 100 -or
