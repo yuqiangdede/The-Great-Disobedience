@@ -1,0 +1,74 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "chapter_path": {
+      "type": "string"
+    },
+    "review_report_path": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "PASS",
+        "NEEDS_AUTHOR",
+        "FAILED"
+      ]
+    },
+    "workflow_complete": {
+      "type": "boolean"
+    },
+    "ai_review_status": {
+      "type": "string",
+      "enum": [
+        "通过",
+        "不通过",
+        "待核实"
+      ]
+    },
+    "initial_score": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "final_score": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "optimization_rounds": {
+      "type": "integer"
+    },
+    "changed_files": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "unresolved_issues": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "summary": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "chapter_path",
+    "review_report_path",
+    "status",
+    "workflow_complete",
+    "ai_review_status",
+    "initial_score",
+    "final_score",
+    "optimization_rounds",
+    "changed_files",
+    "unresolved_issues",
+    "summary"
+  ]
+}
