@@ -1,2 +1,5 @@
 __pycache__/
 *.py[cod]
+.backup_local/
+scratch/
+导出/
