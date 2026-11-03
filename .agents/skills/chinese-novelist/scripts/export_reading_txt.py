@@ -5,8 +5,8 @@ import argparse
 import re
 from pathlib import Path
 
-CHAPTER = re.compile(r"^第(\d+)章(?:[-_ ].*)?\.md$")
-INTERLUDE = re.compile(r"^插(?:章)?(\d{3})(?:[-_ ].*)?\.md$")  # 兼容既有“插章NNN”和“插NNN”命名
+CHAPTER = re.compile(r"^(?:.*-)?第(\d+)章(?:[-_ ].*)?\.md$")
+INTERLUDE = re.compile(r"^(?:.*-)?插(?:章)?(\d{3})(?:[-_ ].*)?\.md$")  # 兼容既有“插章NNN”和“插NNN”命名
 SCENE = re.compile(r"^(?:\*\s*\*\s*\*+|-{3,}|_{3,})$")
 
 def order(path):
