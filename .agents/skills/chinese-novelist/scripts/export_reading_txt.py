@@ -55,6 +55,9 @@ def chapter_txt(markdown, fallback):
         h = re.match(r"^#{1,6}\s+(.+?)\s*#*\s*$", value)
         if h:
             val = h.group(1).strip()
+            # 卷标题属于文件结构，不能当作正文输出到每一章。
+            if re.match(r"^第\d+卷(?:\s|$)", val):
+                continue
             if not seen and (re.match(r"^第\d+章", val) or val.startswith("插章") or val.startswith("插")):
                 title, seen = inline(val), True
                 continue
