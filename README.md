@@ -12,7 +12,7 @@
 4. [130章汇总概要](./05-章节简写/00-全书章节简写汇总稿.md)——规划参考，不等同于130份已验证的独立简写。
 5. [项目写作规则](./04-写作规则/项目专属写作规则.md)、[AGENTS.md](./AGENTS.md)、[novel.project.json](./novel.project.json)——实际写作与验收。
 
-- V4-R2质量优化在`rewrite/fanqie-v4-r2-quality-2026-11-11`分支，改写49张关键剧情卡；须与权威基准、AGENTS和连续性索引一起合入main后才在main正式生效。**此处49指章卡，不是49章正文。**
+- V4-R2质量优化已通过[PR #9](https://github.com/yuqiangdede/The-Great-Disobedience/pull/9)合并至main，改写49张关键剧情卡（不是49章正文）。**后续小说相关修改默认直接提交main，不再创建PR**；以[AGENTS.md](./AGENTS.md)的提交边界为准。
 ## 清理与重写状态（2026-11-10）
 
 - `06-正文/` 在main仍保留原130章历史文件及一个重复旧001（另有占位文件）；这些不是V4-R2新正文，不能据文件数量宣称重写完成。另有备份分支`backup/old-manuscript-before-rewrite-2026-10-31`可溯源。
